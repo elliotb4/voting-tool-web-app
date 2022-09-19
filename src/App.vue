@@ -1,9 +1,9 @@
 <template>
-  <div class="table">
-    <h1>Preflib Election Simulator</h1>
+  <div class="ResultTable">
+    <h1>PrefLib Election Results</h1>
     <table>
-      <tr class="top">
-        <th>No. of Candidates</th>
+      <tr>
+        <th class="top">No. of Candidates</th>
         <td>{{ results.candidates }}</td>
       </tr>
       <tr>
@@ -31,7 +31,7 @@
       <label for="dataset">Dataset: </label>
       <input
         v-model.number="dataset"
-        @change="fetchData(dataset)"
+        @change="fetchResultData(dataset)"
         type="number"
         id="dataset"
         name="dataset"
@@ -39,6 +39,31 @@
         max="87"
       />
     </div>
+  </div>
+  <div class="efficiencyTable">
+    <h2>Condorcet Efficiencies</h2>
+    <table>
+      <tr class="top">
+        <th>Method</th>
+        <th>Probability</th>
+      </tr>
+      <tr>
+        <th>Modified Borda</th>
+        <td>{{ efficiencies[0] }}</td>
+      </tr>
+      <tr>
+        <th>Averaged Borda</th>
+        <td>{{ efficiencies[1] }}</td>
+      </tr>
+      <tr>
+        <th>IRV</th>
+        <td>{{ efficiencies[2] }}</td>
+      </tr>
+      <tr>
+        <th>Plurality</th>
+        <td>{{ efficiencies[3] }}</td>
+      </tr>
+    </table>
   </div>
 </template>
 
@@ -50,20 +75,33 @@ export default {
     return {
       results: [],
       dataset: 1,
+      efficiencies: [],
+      url: "http://localhost:8080/preflib",
     };
   },
   mounted() {
-    this.fetchData(this.dataset);
+    this.fetchResultData(this.dataset);
+    this.fetchEfficiencyData();
   },
   methods: {
-    fetchData(dataset) {
+    fetchResultData(dataset) {
       axios
-        .post("http://localhost:8080/preflib", {
+        .post(this.url, {
           set: dataset,
         })
         .then((res) => {
-          console.log(res.data);
+          // console.log(res.data);
           this.results = res.data;
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
+    fetchEfficiencyData() {
+      axios
+        .get(this.url)
+        .then((res) => {
+          this.efficiencies = res.data.efficiency;
         })
         .catch((err) => {
           console.log(err);
@@ -83,6 +121,10 @@ input {
 
 h1 {
   font-size: 45px;
+  text-align: center;
+}
+
+h2 {
   text-align: center;
 }
 
@@ -106,11 +148,20 @@ td {
   color: black;
 }
 
+th {
+  font-weight: bold;
+}
+
 .select {
   text-align: center;
 }
 
 .top {
-  background-color: rgba(60, 60, 60, 0.29) !important;
+  text-decoration-line: underline;
+  text-decoration-color: black;
+}
+
+td {
+  text-decoration-line: none !important;
 }
 </style>
