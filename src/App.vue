@@ -56,7 +56,7 @@
         <td>{{ efficiencies[1] }}</td>
       </tr>
       <tr>
-        <th>IRV</th>
+        <th>Instant Runoff</th>
         <td>{{ efficiencies[2] }}</td>
       </tr>
       <tr>
